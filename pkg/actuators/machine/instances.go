@@ -590,8 +590,16 @@ func constructInstancePlacement(machine *machinev1beta1.Machine, machineProvider
 		placement.SetAvailabilityZone(machineProviderConfig.Placement.AvailabilityZone)
 	}
 
+	if machineProviderConfig.PlacementGroupName == "" && machineProviderConfig.PlacementGroupPartition != 0 {
+		return nil, mapierrors.InvalidMachineConfiguration("placementGroupPartition is set but placementGroupName is empty")
+	}
+
 	if machineProviderConfig.PlacementGroupName != "" {
 		placement.GroupName = &machineProviderConfig.PlacementGroupName
+
+		if machineProviderConfig.PlacementGroupPartition != 0 {
+			placement.PartitionNumber = &machineProviderConfig.PlacementGroupPartition
+		}
 	}
 
 	instanceTenancy := machineProviderConfig.Placement.Tenancy
